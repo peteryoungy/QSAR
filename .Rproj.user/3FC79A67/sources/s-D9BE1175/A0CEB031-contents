@@ -5,7 +5,49 @@ date: "2021/12/2"
 output: pdf_document
 ---
 ```{r}
-qsar_raw = read.csv2("biodeg.csv");
+qsar_raw = read.csv2("biodeg.csv",header = FALSE);
+names(qsar_raw) <- c('SpMax_L',
+                     'J_Dz(e)',
+                     'nHM',
+                     'F01[N-N]',
+                     'F04[C-N]',
+                     'NssssC',
+                     'nCb-',
+                     'C%',
+                     'nCp',
+                     'nO',
+                     'F03[C-N]',
+                     'SdssC',
+                     'HyWi_B(m)',
+                     'LOC',
+                     'SM6_L',
+                     'F03[C-O]',
+                     'Me',
+                     'Mi',
+                     'nN-N',
+                     'nArNO2',
+                     'nCRX3',
+                     'SpPosA_B(p)',
+                     'nCIR',
+                     'B01[C-Br]',
+                     'B03[C-Cl]',
+                     'N-073',
+                     'SpMax_A',
+                     'Psi_i_1d',
+                     'B04[C-Br]',
+                     'SdO',
+                     'TI2_L',
+                     'nCrt',
+                     'C-026',
+                     'F02[C-N]',
+                     'nHDon',
+                     'SpMax_B(m)',
+                     'Psi_i_A',
+                     'nN',
+                     'SM6_B(m)',
+                     'nArCOOR',
+                     'nX',
+                     'experimental class');
 qsar_raw
 ```
 
