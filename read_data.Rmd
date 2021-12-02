@@ -1,0 +1,14 @@
+---
+title: "read_data"
+author: "Yang Yu"
+date: "2021/12/2"
+output: pdf_document
+---
+```{r}
+qsar_raw = read.csv2("biodeg.csv");
+qsar_raw
+```
+
+
+
+
