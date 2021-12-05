@@ -186,9 +186,30 @@ table(qsar_test$class, re_kknn_test_predict, dnn = c("Truth", "Prediction"))
 ## PLSDA_Paper_Version
 library(mixOmics)
 set.seed(6690)
+plsda_n_val = c(2, 3, 4, 5, 6, 7, 8, 9)
 re_plsda_index<-c(1, 5, 8, 10, 13, 14, 15, 16, 17, 18, 19, 20,
                   21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
 train_x_plsda<-as.matrix(qsar_train[re_plsda_index])
 test_x_plsda<-as.matrix(qsar_test[re_plsda_index])
-qsar.re.plsda<-plsda(train_x_plsda, qsar_train$class, ncomp = 2)
-predict(qsar.re.plsda, test_x_plsda)$class
+cv_totoal_correct2<-seq(0, 0, length = 8)
+for (epoch in 1:10) {
+  cv_index<-sample(837, 837)
+  for (i in 1:8) {
+    for (k in 1:5) {
+      cv_test_index<-cv_index[(1+round(167.4*(k-1))):round(167.4*k)]
+      qsar.re.plsda.cv<-plsda(train_x_plsda[-cv_test_index,], 
+                           qsar_train[-cv_test_index,]$class, 
+                           ncomp = plsda_n_val[i])
+      cv_predict<-predict(qsar.re.plsda.cv, train_x_plsda[cv_test_index,])$class$max.dist[, plsda_n_val[i]]
+      num_correct<-sum(cv_predict == qsar_train[cv_test_index, ]$class)
+      cv_totoal_correct2[i]<-cv_totoal_correct2[i] + num_correct
+    }
+  }
+}
+plsda_n<-plsda_n_val[which.max(cv_totoal_correct2)]
+qsar.re.plsda<-plsda(train_x_plsda, qsar_train$class, ncomp = plsda_n)
+re_plsda_class<-predict(qsar.re.plsda, test_x_plsda)$class$max.dist[, plsda_n]
+table(qsar_test$class, re_plsda_class, dnn = c("Truth", "Prediction"))
+plsda_loadings<-qsar.re.plsda$loadings.star[[1]]
+plot(plsda_loadings[,1], -plsda_loadings[,2])
+text(plsda_loadings[,1], -plsda_loadings[,2], labels = rownames(plsda_loadings))
