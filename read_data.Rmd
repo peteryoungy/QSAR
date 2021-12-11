@@ -51,6 +51,227 @@ names(qsar_raw) <- c('SpMax_L',
 qsar_raw
 ```
 
+```{r}
+qsar_raw = read.csv2("biodeg.csv",header = FALSE);
+names(qsar_raw) <- c('SpMax_L',
+                     'J_Dz_e',
+                     'nHM',
+                     'F01_N_N',
+                     'F04_C_N',
+                     'NssssC',
+                     'nCb',
+                     'C',
+                     'nCp',
+                     'nO',
+                     'F03_C_N',
+                     'SdssC',
+                     'HyWiB_m',
+                     'LOC',
+                     'SM6_L',
+                     'F03C_O',
+                     'Me',
+                     'Mi',
+                     'nN_N',
+                     'nArNO2',
+                     'nCRX3',
+                     'SpPosA_B_p',
+                     'nCIR',
+                     'B01_C_Br',
+                     'B03_C_Cl',
+                     'N_073',
+                     'SpMax_A',
+                     'Psi_i_1d',
+                     'B04_C_Br',
+                     'SdO',
+                     'TI2_L',
+                     'nCrt',
+                     'C_026',
+                     'F02_C_N',
+                     'nHDon',
+                     'SpMax_B_m',
+                     'Psi_i_A',
+                     'nN',
+                     'SM6_B_m',
+                     'nArCOOR',
+                     'nX',
+                     'class');
+qsar_raw$SpMax_L<-as.numeric(qsar_raw$SpMax_L)
+qsar_raw$J_Dz_e<-as.numeric(qsar_raw$J_Dz_e)
+qsar_raw$C<-as.numeric(qsar_raw$C)
+qsar_raw$SdssC<-as.numeric(qsar_raw$SdssC)
+qsar_raw$HyWiB_m<-as.numeric(qsar_raw$HyWiB_m)
+qsar_raw$LOC<-as.numeric(qsar_raw$LOC)
+qsar_raw$SM6_L<-as.numeric(qsar_raw$SM6_L)
+qsar_raw$Me<-as.numeric(qsar_raw$Me)
+qsar_raw$Mi<-as.numeric(qsar_raw$Mi)
+qsar_raw$SpPosA_B_p<-as.numeric(qsar_raw$SpPosA_B_p)
+qsar_raw$SpMax_A<-as.numeric(qsar_raw$SpMax_A)
+qsar_raw$Psi_i_1d<-as.numeric(qsar_raw$Psi_i_1d)
+qsar_raw$SdO<-as.numeric(qsar_raw$SdO)
+qsar_raw$TI2_L<-as.numeric(qsar_raw$TI2_L)
+qsar_raw$SpMax_B_m<-as.numeric(qsar_raw$SpMax_B_m)
+qsar_raw$Psi_i_A<-as.numeric(qsar_raw$Psi_i_A)
+qsar_raw$SM6_B_m<-as.numeric(qsar_raw$SM6_B_m)
+for (i in 1:1055) {
+  if (qsar_raw$class[i] == "RB") {
+    qsar_raw$class[i]<-"0"
+  }
+  else {
+    qsar_raw$class[i]<-"1"
+  }
+}
+qsar_raw$class<-as.integer(qsar_raw$class)
+#test_index<-sample(1055, 128)
+qsar_train<-qsar_raw[(1:837), ]
+qsar_test<-qsar_raw[-(1:837), ]
+
+qsar_raw
+```
 
 
+LDA, bayes, decision tree, bagging, random forest
+
+
+# LDA
+```{r}
+# attach(qsar_raw)
+
+# create lda model
+lda.fit <- lda(class ~ ., data = qsar_train)
+# lda.fit
+
+
+# predict
+lda.predict <- predict(lda.fit, qsar_test)
+# names(lda.predict)
+# lda.predict
+lda.class <- lda.predict$class
+# lda.class
+
+
+# make table and compute test error
+table(lda.class, qsar_test$class)
+mean(lda.class == qsar_test$class)
+
+
+
+```
+
+
+# naive bayes
+```{r}
+library(e1071)
+
+# create model
+nb.fit <- naiveBayes(class ~.,data = qsar_train)
+# nb.fit
+
+
+# PREDICT
+nb.class <- predict(nb.fit, qsar_test)
+# nb.class
+
+# TSET ERROR
+table(nb.class, qsar_test$class)
+mean(nb.class == qsar_test$class)
+
+
+```
+
+
+#decision tree without pruning
+```{r}
+library(tree)
+
+# create model 
+tree.qsar <- tree(as.factor(class) ~.,data = qsar_train)
+# summary(tree.qsar)
+
+
+#plot
+# plot(tree.qsar)
+# text(tree.qsar, pretty = 0)
+
+# predict
+tree.pred <- predict(tree.qsar, qsar_test, type = "class") 
+# tree.pred
+
+#test error
+table(tree.pred, qsar_test$class)
+mean(tree.pred == qsar_test$class)
+```
+
+# decision tree with pruning
+```{r}
+
+# add panalty a|T|
+set.seed(3)
+cv.qsar <- cv.tree(tree.qsar,FUN = prune.misclass) 
+# cv.qsar
+# plot(cv.qsar$size, cv.qsar$dev, type = "b", xlab = "Tree Size", ylab = "Deviance")
+
+
+# size = 15 is the optimal tree
+
+
+# get model
+prune.tree.qsar <- prune.misclass(tree.qsar, best = 12)
+# plot(prune.tree.qsar)
+# text(prune.tree.qsar, pretty = 0)
+
+
+# predict
+tree.pred.prun<- predict(prune.tree.qsar, qsar_test, type = "class")
+
+# test error
+table(tree.pred.prun, qsar_test$class)
+mean(tree.pred.prun == qsar_test$class)
+
+## the pruning tree is optimal
+
+```
+
+
+# bagging
+
+```{r}
+library(randomForest)
+# rfNews()
+
+
+# CREATE MODEL
+set.seed(1)
+bag.qsar <- randomForest(as.factor(class) ~.,data = qsar_train, mtry = 41, importance = TRUE)
+# bag.qsar
+
+
+# PREDICT
+bag.pred <- predict(bag.qsar, newdata = qsar_test)
+# bag.pred
+
+
+# TEST ERROR
+table(bag.pred, qsar_test$class)
+mean(bag.pred == qsar_test$class)
+
+```
+
+# randomForest
+
+```{r}
+# CREATE MODEL
+set.seed(1)
+forest.qsar <- randomForest(as.factor(class) ~.,data = qsar_train, importance = TRUE)
+# forest.qsar
+
+
+# PREDICT
+forest.pred <- predict(forest.qsar, newdata = qsar_test)
+# forest.pred
+
+
+# TEST ERROR
+table(forest.pred, qsar_test$class)
+mean(forest.pred == qsar_test$class)
+```
 
