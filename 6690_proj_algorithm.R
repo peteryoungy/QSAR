@@ -1,4 +1,4 @@
-qsar_raw<-read.csv2("C:/Users/asus/Desktop/EECSE6690/Project/biodeg.csv",header = FALSE);
+qsar_raw<-read.csv2("C:/Users/asus/Desktop/EECSE6690/Project/biodeg.csv",header = FALSE)
 names(qsar_raw) <- c('SpMax_L',
                      'J_Dz_e',
                      'nHM',
@@ -115,7 +115,7 @@ costs_re_svm<-seq(0.2, 10, length = 50)
 valid_acc_re_svm<-seq(0, 0, length = 50)
 for (epoch in 1:3) {
   for (i in 1:50) {
-    qsar.re.svm.cv<-svm(class~C_026 + F02_C_N + nArNO2+nCrt + nHDon + 
+    qsar.re.svm.cv<-svm(class~C_026 + F02_C_N + nArNO2 + nCrt + nHDon + 
                           nN + nN_N + NssssC + nX + Psi_i_A + SM6_B_m + 
                           SpMax_B_m + SpMax_L, data = qsar_train, 
                         kernel = "radial", type = "C-classification",
@@ -147,7 +147,7 @@ re_svm_train_predict<-predict(qsar.re.svm, qsar_train)
 table(qsar_train$class, re_svm_train_predict, dnn = c("Truth", "Prediction"))
 
 
-## KNN_Paper_Version
+## 3. KNN_Paper_Version
 library(kknn)
 set.seed(6690)
 k_val<-c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
@@ -182,8 +182,7 @@ qsar.re.knn<-kknn(class~C + F01_N_N + F03_C_N + F04_C_N +
                k = k_re_kknn, distance = dist_re_knn)
 re_kknn_test_predict<-round(qsar.re.knn$fitted.values)
 table(qsar_test$class, re_kknn_test_predict, dnn = c("Truth", "Prediction"))
-
-## PLSDA_Paper_Version
+## 4. PLSDA_Paper_Version
 library(mixOmics)
 set.seed(6690)
 plsda_n_val = c(2, 3, 4, 5, 6, 7, 8, 9)
@@ -213,3 +212,151 @@ table(qsar_test$class, re_plsda_class, dnn = c("Truth", "Prediction"))
 plsda_loadings<-qsar.re.plsda$loadings.star[[1]]
 plot(plsda_loadings[,1], -plsda_loadings[,2])
 text(plsda_loadings[,1], -plsda_loadings[,2], labels = rownames(plsda_loadings))
+
+
+## 5. Adaboost-Breiman
+library(adabag)
+qsar_train_adaboost<-qsar_train
+qsar_train_adaboost$class<-as.factor(qsar_train_adaboost$class)
+qsar_train_adaboost$nHM<-as.numeric(qsar_train_adaboost$nHM)
+qsar_train_adaboost$F01_N_N<-as.numeric(qsar_train_adaboost$F01_N_N)
+qsar_train_adaboost$F04_C_N<-as.numeric(qsar_train_adaboost$F04_C_N)
+qsar_train_adaboost$NssssC<-as.numeric(qsar_train_adaboost$NssssC)
+qsar_train_adaboost$nCb<-as.numeric(qsar_train_adaboost$nCb)
+qsar_train_adaboost$nCp<-as.numeric(qsar_train_adaboost$nCp)
+qsar_train_adaboost$nO<-as.numeric(qsar_train_adaboost$nO)
+qsar_train_adaboost$F03_C_N<-as.numeric(qsar_train_adaboost$F03_C_N)
+qsar_train_adaboost$F03C_O<-as.numeric(qsar_train_adaboost$F03C_O)
+qsar_train_adaboost$nN_N<-as.numeric(qsar_train_adaboost$nN_N)
+qsar_train_adaboost$nArNO2<-as.numeric(qsar_train_adaboost$nArNO2)
+qsar_train_adaboost$nCRX3<-as.numeric(qsar_train_adaboost$nCRX3)
+qsar_train_adaboost$nCIR<-as.numeric(qsar_train_adaboost$nCIR)
+qsar_train_adaboost$B01_C_Br<-as.numeric(qsar_train_adaboost$B01_C_Br)
+qsar_train_adaboost$B03_C_Cl<-as.numeric(qsar_train_adaboost$B03_C_Cl)
+qsar_train_adaboost$N_073<-as.numeric(qsar_train_adaboost$N_073)
+qsar_train_adaboost$B04_C_Br<-as.numeric(qsar_train_adaboost$B04_C_Br)
+qsar_train_adaboost$nCrt<-as.numeric(qsar_train_adaboost$nCrt)
+qsar_train_adaboost$C_026<-as.numeric(qsar_train_adaboost$C_026)
+qsar_train_adaboost$F02_C_N<-as.numeric(qsar_train_adaboost$F02_C_N)
+qsar_train_adaboost$nHDon<-as.numeric(qsar_train_adaboost$nHDon)
+qsar_train_adaboost$nN<-as.numeric(qsar_train_adaboost$nN)
+qsar_train_adaboost$nArCOOR<-as.numeric(qsar_train_adaboost$nArCOOR)
+qsar_train_adaboost$nX<-as.numeric(qsar_train_adaboost$nX)
+set.seed(6690)
+trees_adaboost<-seq(50, 250, length = 5)
+bootstrap<-c(TRUE, FALSE)
+adaboost_cv_error<-matrix(seq(0, 0, length = 10), nrow =5)
+for (epoch in 1:3) {
+  for (i in 1:5) {
+    for (j in 1:2) {
+      qsar.adaboost.cv<-boosting.cv(class~., data = qsar_train_adaboost, 
+                                 boos = bootstrap[j], v = 5, 
+                                 mfinal = trees_adaboost[i])
+      adaboost_cv_error[i, j]<-adaboost_cv_error[i, j] + qsar.adaboost.cv$error
+    }
+  }
+}
+opt_adaboost_par<-which.min(adaboost_cv_error)
+numtree_adaboost<-trees_adaboost[opt_adaboost_par%%5]
+bootstrap_adaboost<-bootstrap[(opt_adaboost_par-1)%/%5 + 1]
+qsar.adaboost<-boosting(class~., data = qsar_train_adaboost,
+                        boos = bootstrap_adaboost, 
+                        mfinal = numtree_adaboost)
+adaboost_test_predict<-predict(qsar.adaboost, qsar_test)$class
+table(qsar_test$class, adaboost_test_predict, dnn = c("Truth", "Prediction"))
+
+## 6. Adaboost-Freund
+set.seed(6690)
+trees_adaboost2<-seq(50, 250, length = 5)
+bootstrap2<-c(TRUE, FALSE)
+adaboost_cv_error2<-matrix(seq(0, 0, length = 10), nrow =5)
+for (epoch in 1:3) {
+  for (i in 1:5) {
+    for (j in 1:2) {
+      qsar.adaboost.cv2<-boosting.cv(class~., data = qsar_train_adaboost, 
+                                    boos = bootstrap[j], v = 5, 
+                                    mfinal = trees_adaboost[i],
+                                    coeflearn = "Freund")
+      adaboost_cv_error2[i, j]<-adaboost_cv_error[i, j] + qsar.adaboost.cv$error
+    }
+  }
+}
+opt_adaboost_par2<-which.min(adaboost_cv_error)
+numtree_adaboost2<-trees_adaboost[opt_adaboost_par%%5]
+bootstrap_adaboost2<-bootstrap[(opt_adaboost_par-1)%/%5 + 1]
+qsar.adaboost2<-boosting(class~., data = qsar_train_adaboost,
+                        boos = bootstrap_adaboost, 
+                        mfinal = numtree_adaboost)
+adaboost_test_predict2<-predict(qsar.adaboost, qsar_test)$class
+table(qsar_test$class, adaboost_test_predict2, dnn = c("Truth", "Prediction"))
+
+
+## 7. Deep Nueral Network
+set.seed(6690)
+library(keras)
+qsar_train_x<-as.matrix(qsar_train[1:41])
+qsar_train_y<-as.matrix(qsar_train[42])
+qsar_test_x<-as.matrix(qsar_test[1:41])
+qsar_test_y<-as.matrix(qsar_test[42])
+qsar_train_y<-to_categorical(qsar_train_y, 2)
+qsar_test_y<-to_categorical(qsar_test_y, 2)
+dropout_rates = c(0, 0.1, 0.2, 0.3, 0.4, 0.5)
+cv_totoal_acc<-seq(0, 0, length = 6)
+for (epoch in 1:6) {
+  print(epoch)
+  cv_index<-sample(837, 837)
+  for (i in 1:6) {
+    for (k in 1:5) {
+      cv_test_index<-cv_index[(1+round(167.4*(k-1))):round(167.4*k)]
+      qsar.nn.cv<-keras_model_sequential()
+      qsar.nn.cv %>%
+        layer_dense(units = 400, activation = "relu") %>%
+        layer_batch_normalization() %>%
+        layer_dropout(dropout_rates[i]) %>%
+        layer_dense(units = 200, activation = "relu") %>%
+        layer_dropout(dropout_rates[i]) %>%
+        layer_dense(units = 2, activation = "softmax")
+      qsar.nn.cv %>% compile(loss = "categorical_crossentropy", 
+                          optimizer = "adam", metrics = "accuracy")
+      qsar.nn.cv %>% fit(qsar_train_x, qsar_train_y, epochs = 60,
+                                        batch_size = 100, verbose = 0)
+      cv.test<-qsar.nn.cv %>% evaluate(qsar_test_x, qsar_test_y, verbose = 0)
+      cv_totoal_acc[i]<-cv_totoal_acc[i] + cv.test[2]
+    }
+  }
+}
+dropout_rate = dropout_rates[which.max(cv_totoal_acc)]
+qsar.nn<-keras_model_sequential()
+qsar.nn %>%
+  layer_dense(units = 400, activation = "relu") %>%
+  layer_batch_normalization() %>%
+  layer_dropout(droupout_rate) %>%
+  layer_dense(units = 200, activation = "relu") %>%
+  layer_dropout(dropout_rate) %>%
+  layer_dense(units = 2, activation = "softmax")
+qsar.nn %>% compile(loss = "categorical_crossentropy", 
+                    optimizer = "adam", metrics = "accuracy")
+nn.train.history<-qsar.nn %>% fit(qsar_train_x, qsar_train_y, epochs = 60,
+                              batch_size = 100)
+plot(nn.train.history)
+test_acc_nn<-qsar.nn %>% evaluate(qsar_test_x, qsar_test_y, verbose = 0)
+test_acc_nn[2]
+
+
+## 8. PCA
+library(factoextra)
+library(FactoMineR)
+re_svm_index<-c(1, 6, 19, 20, 32, 33, 34, 35, 36, 37, 38, 39, 41)
+re_knn_index<-c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+qsar.svm.pca<-PCA(qsar_raw[re_svm_index], ncp = 10)
+fviz_pca_ind(qsar.svm.pca, axes = c(1, 4), label = "none",
+             habillage = as.factor(qsar_raw$class))
+fviz_pca_var(qsar.svm.pca, axes = c(1, 4), repel = TRUE, 
+             geom.var = "text", fill.var = "red",
+             col.var = "black", palette = "npg")
+qsar.knn.pca<-PCA(qsar_raw[re_knn_index], ncp = 10)
+fviz_pca_ind(qsar.knn.pca, axes = c(1, 4), label = "none",
+             habillage = as.factor(qsar_raw$class))
+fviz_pca_var(qsar.knn.pca, axes = c(1, 4), repel = TRUE, 
+             geom.var = "text", fill.var = "red",
+             col.var = "black", palette = "npg")
