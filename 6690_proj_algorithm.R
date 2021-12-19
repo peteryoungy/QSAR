@@ -272,11 +272,11 @@ qsar_train_adaboost$nN<-as.numeric(qsar_train_adaboost$nN)
 qsar_train_adaboost$nArCOOR<-as.numeric(qsar_train_adaboost$nArCOOR)
 qsar_train_adaboost$nX<-as.numeric(qsar_train_adaboost$nX)
 set.seed(6690)
-trees_adaboost<-seq(25, 125, length = 5)
+trees_adaboost<-seq(50, 200, length = 7)
 bootstrap<-c(TRUE, FALSE)
-adaboost_cv_error<-matrix(seq(0, 0, length = 10), nrow =5)
+adaboost_cv_error<-matrix(seq(0, 0, length = 14), nrow =7)
 for (epoch in 1:3) {
-  for (i in 1:5) {
+  for (i in 1:7) {
     for (j in 1:2) {
       qsar.adaboost.cv<-boosting.cv(class~., data = qsar_train_adaboost, 
                                  boos = bootstrap[j], v = 5, 
@@ -286,9 +286,10 @@ for (epoch in 1:3) {
   }
 }
 opt_adaboost_par<-which.min(adaboost_cv_error)
-# trees = 75, boos = TRUE
-bootstrap_adaboost<-bootstrap[2- opt_adaboost_par%%2]
-numtree_adaboost<-trees_adaboost[(opt_adaboost_par-1)%/%2 + 1]
+# trees = 175, boos = TRUE
+set.seed(6690)
+bootstrap_adaboost<-bootstrap[(opt_adaboost_par - 1)%/%7 + 1]
+numtree_adaboost<-trees_adaboost[opt_adaboost_par%%7 + (7 - opt_adaboost_par%%7)%/%7 ]
 qsar.adaboost<-boosting(class~., data = qsar_train_adaboost,
                         boos = bootstrap_adaboost, 
                         mfinal = numtree_adaboost)
@@ -301,11 +302,11 @@ ada1.pred<-adaboost_test_predict
 
 ## 6. Adaboost-Freund
 set.seed(6690)
-trees_adaboost2<-seq(25, 125, length = 5)
+trees_adaboost2<-seq(25, 175, length = 7)
 bootstrap2<-c(TRUE, FALSE)
-adaboost_cv_error2<-matrix(seq(0, 0, length = 10), nrow =5)
+adaboost_cv_error2<-matrix(seq(0, 0, length = 14), nrow =7)
 for (epoch in 1:3) {
-  for (i in 1:5) {
+  for (i in 1:7) {
     for (j in 1:2) {
       qsar.adaboost.cv2<-boosting.cv(class~., data = qsar_train_adaboost, 
                                     boos = bootstrap2[j], v = 5, 
@@ -316,9 +317,12 @@ for (epoch in 1:3) {
   }
 }
 opt_adaboost_par2<-which.min(adaboost_cv_error2)
-# TRUE, 100
-bootstrap_adaboost2<-bootstrap2[2 - opt_adaboost_par2%%2]
-numtree_adaboost2<-trees_adaboost2[(opt_adaboost_par2-1)%/%2 + 1]
+# False, 50
+set.seed(100)
+# bootstrap_adaboost2<-bootstrap2[(opt_adaboost_par2 - 1)%/%7 + 2]
+# numtree_adaboost2<-trees_adaboost2[opt_adaboost_par2%%67 + (7 - opt_adaboost_par2%%7)%/%7]
+bootstrap_adaboost2<-FALSE
+numtree_adaboost2<-50
 qsar.adaboost2<-boosting(class~., data = qsar_train_adaboost,
                         boos = bootstrap_adaboost2, 
                         mfinal = numtree_adaboost2,
@@ -327,7 +331,7 @@ qsar.adaboost2<-boosting(class~., data = qsar_train_adaboost,
 # CM for testing
 adaboost_test_predict2<-predict(qsar.adaboost2, qsar_test)$class
 ada2_test_table<-table(adaboost_test_predict2, qsar_test$class, dnn = c("Prediction", "Truth"))
-
+ada2_test_table
 ada2.pred<-adaboost_test_predict2
 
 ## 7. Neural Network
@@ -503,7 +507,7 @@ consensus3<-as.numeric(consensus3 > 1)
 cm.c3<-confusionMatrix(table(consensus3, qsar_test$class, dnn = c("Prediction", "Truth")))
 
 # C4
-consensus4<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada2.pred)
+consensus4<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada1.pred)
 consensus4<-as.numeric(consensus4 > 1)
 cm.c4<-confusionMatrix(table(consensus4, qsar_test$class, dnn = c("Prediction", "Truth")))
 
@@ -512,22 +516,24 @@ consensus5<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as
 consensus5<-as.numeric(consensus5 > 1)
 cm.c5<-confusionMatrix(table(consensus5, qsar_test$class, dnn = c("Prediction", "Truth")))
 
-# C5
+# C6
 consensus6<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$bag.pred) - 1
 consensus6<-as.numeric(consensus6 > 1)
 cm.c6<-confusionMatrix(table(consensus6, qsar_test$class, dnn = c("Prediction", "Truth")))
 
 # C7
-consensus7<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$rf.pred) + 
-  + as.numeric(all_pred$ada2.pred) + as.numeric(all_pred$dnn.pred) - 1 
-consensus7<-as.numeric(consensus7 > 2)
+consensus7<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada2.pred)
+consensus7<-as.numeric(consensus7 > 1)
 cm.c7<-confusionMatrix(table(consensus7, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c7
 
-# C
-consensus<-as.numeric(all_pred$svm.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$rf.pred) - 2
-consensus<-as.numeric(consensus > 1)
-cm.c<-confusionMatrix(table(consensus, qsar_test$class, dnn = c("Prediction", "Truth")))
-cm.c
+# C8
+consensus8<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada1.pred) + 
+  + as.numeric(all_pred$ada2.pred) + as.numeric(all_pred$nn.pred)
+consensus8<-as.numeric(consensus8 > 2)
+cm.c8<-confusionMatrix(table(consensus8, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c8
+
 
 # 12. Plot Confusion Matrix
 draw_confusion_matrix <- function(cm) {
@@ -586,7 +592,7 @@ draw_confusion_matrix(cm.rf)
 library(randomForest)
 set.seed(6690)
 num_trees<-c(50, 100, 150, 200, 300, 400)
-bagging_cv_error<-seq(0, 0, length = 6)
+bagging_cv_acc<-seq(0, 0, length = 6)
 for (epoch in 1:6) {
   cv_index<-sample(837, 837)
   for (i in 1:6) {
@@ -596,11 +602,11 @@ for (epoch in 1:6) {
                                 ntree = num_trees[i], mtry = 41, importance = TRUE)
       bag.cv.pred <- predict(qsar.bag.cv, newdata = qsar_train[cv_test_index, ])
       cv.acc<-mean(bag.cv.pred == qsar_train[cv_test_index, ]$class)
-      bagging_cv_error[i]<-bagging_cv_error[i] + cv.acc
+      bagging_cv_acc[i]<-bagging_cv_acc[i] + cv.acc
     }
   }
 }
-num_tree = num_trees[which.max(bagging_cv_error)]
+num_tree = num_trees[which.max(bagging_cv_acc)]
 qsar.bagging <- randomForest(as.factor(class) ~.,data = qsar_train, 
                              ntree = num_tree, mtry = 41, importance = TRUE)
 bag.pred <- predict(qsar.bagging, newdata = qsar_test)
@@ -609,8 +615,8 @@ mean(bag.pred == qsar_test$class)
 
 # 13. Random Forest
 set.seed(6690)
-num_trees_rf<-c(200, 250, 300, 400, 500, 600)
-rf_cv_error<-seq(0, 0, length = 6)
+num_trees_rf<-c(100, 150, 200, 300, 400, 500)
+rf_cv_acc<-seq(0, 0, length = 6)
 for (epoch in 1:6) {
   cv_index<-sample(837, 837)
   for (i in 1:6) {
@@ -620,13 +626,20 @@ for (epoch in 1:6) {
                                 ntree = num_trees_rf[i], importance = TRUE)
       rf.cv.pred <- predict(qsar.rf.cv, newdata = qsar_train[cv_test_index, ])
       cv.acc<-mean(rf.cv.pred == qsar_train[cv_test_index, ]$class)
-      rf_cv_error[i]<-rf_cv_error[i] + cv.acc
+      rf_cv_acc[i]<-rf_cv_acc[i] + cv.acc
     }
   }
 }
-num_tree_rf = num_trees_rf[which.max(rf_cv_error)]
+num_tree_rf = num_trees_rf[which.max(rf_cv_acc)]
 qsar.rf <- randomForest(as.factor(class) ~.,data = qsar_train, 
                              ntree = num_tree_rf, importance = TRUE)
 rf.pred <- predict(qsar.rf, newdata = qsar_test)
 cm.rf<-confusionMatrix(table(rf.pred, qsar_test$class, dnn = c("Prediction", "Truth")))
 mean(rf.pred == qsar_test$class)
+
+
+plot(trees_adaboost2, adaboost_cv_error2[, 1]/3, main = "Cross Validation for AdaBoost",
+     xlab = "ntree", ylab = "cross-validation error", type = "o", ylim = c(0.12, 0.145),
+     pch = 16, col = "red")
+lines(trees_adaboost2, adaboost_cv_error2[, 2]/3, type = "o", pch = 16, col = "blue")
+legend("topright", c("Boostrap", "No Boostrap"), pch = c(16, 16), col = c('red', 'blue'))
