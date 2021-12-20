@@ -7,7 +7,7 @@ output: pdf_document
 
 # Read DATA
 ```{r}
-qsar_raw = read.csv2("data/biodeg.csv",header = FALSE);
+qsar_raw = read.csv2("../data/biodeg.csv",header = FALSE);
 names(qsar_raw) <- c('SpMax_L',
                      'J_Dz_e',
                      'nHM',
