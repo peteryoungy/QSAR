@@ -1,0 +1,149 @@
+---
+title: "tree"
+author: "Yang Yu"
+date: "2021/12/20"
+output: pdf_document
+---
+```{r}
+q = read.csv2("data/biodeg.csv",header = FALSE);
+names(q) <- c('SpMax_L',
+                     'J_Dz_e',
+                     'nHM',
+                     'F01_N_N',
+                     'F04_C_N',
+                     'NssssC',
+                     'nCb',
+                     'C',
+                     'nCp',
+                     'nO',
+                     'F03_C_N',
+                     'SdssC',
+                     'HyWiB_m',
+                     'LOC',
+                     'SM6_L',
+                     'F03C_O',
+                     'Me',
+                     'Mi',
+                     'nN_N',
+                     'nArNO2',
+                     'nCRX3',
+                     'SpPosA_B_p',
+                     'nCIR',
+                     'B01_C_Br',
+                     'B03_C_Cl',
+                     'N_073',
+                     'SpMax_A',
+                     'Psi_i_1d',
+                     'B04_C_Br',
+                     'SdO',
+                     'TI2_L',
+                     'nCrt',
+                     'C_026',
+                     'F02_C_N',
+                     'nHDon',
+                     'SpMax_B_m',
+                     'Psi_i_A',
+                     'nN',
+                     'SM6_B_m',
+                     'nArCOOR',
+                     'nX',
+                     'class');
+q$SpMax_L<-as.numeric(q$SpMax_L)
+q$J_Dz_e<-as.numeric(q$J_Dz_e)
+q$C<-as.numeric(q$C)
+q$SdssC<-as.numeric(q$SdssC)
+q$HyWiB_m<-as.numeric(q$HyWiB_m)
+q$LOC<-as.numeric(q$LOC)
+q$SM6_L<-as.numeric(q$SM6_L)
+q$Me<-as.numeric(q$Me)
+q$Mi<-as.numeric(q$Mi)
+q$SpPosA_B_p<-as.numeric(q$SpPosA_B_p)
+q$SpMax_A<-as.numeric(q$SpMax_A)
+q$Psi_i_1d<-as.numeric(q$Psi_i_1d)
+q$SdO<-as.numeric(q$SdO)
+q$TI2_L<-as.numeric(q$TI2_L)
+q$SpMax_B_m<-as.numeric(q$SpMax_B_m)
+q$Psi_i_A<-as.numeric(q$Psi_i_A)
+q$SM6_B_m<-as.numeric(q$SM6_B_m)
+
+```
+
+
+```{r}
+set.seed(7)
+train <- sample(nrow(q), 837)
+test <- -train
+q_train <- q[train,]
+q_test <- q[test,]
+q
+
+```
+
+
+```{r}
+attach(q)
+```
+
+# Tree
+
+```{r}
+library(rpart)
+library(rpart.plot)
+
+# CREATE MODEL
+q.rpart <- rpart(class~., data=q_train, method = 'class', cp=0)
+rpart.plot(q.rpart, box.palette="RdBu", shadow.col="gray", nn=TRUE)
+
+# fancyRpartPlot(rpart.tree.qsar.plot, caption = NULL)
+```
+
+
+```{r}
+# PREDICT
+q.pred <- predict(q.rpart, q_test, type="class")
+# rpart.tree.pred
+
+# TEST ERROR
+table(q.pred, q_test$class)
+mean(q.pred, q_test$class)
+```
+
+# PLOT CONFUSION MATRIX
+
+```{r}
+cm.rpart <- confusionMatrix(as.factor(q.pred), as.factor(q_test$class))
+draw_confusion_matrix(cm.rpart)
+```
+
+# PRUNE TREE
+```{r}
+printcp(q.rpart)
+plotcp(q.rpart)
+```
+
+
+# USING RAPRT
+### PLOT PRUNING TREE
+```{r}
+q.prune <- rpart(class~., data=q_train, method = 'class', cp=0.0089286)
+rpart.plot(q.prune, box.palette="RdBu", shadow.col="gray", nn=TRUE)
+```
+
+```{r}
+# PREDICT
+prune.pred <- predict(q.prune, q_test, type="class")
+# rpart.tree.pred
+
+# TEST ERROR
+table(prune.pred, q_test$class)
+mean(prune.pred, q_test$class)
+```
+
+###PLOT CONFUSION MATRIX
+```{r}
+cm.rpart.prune <- confusionMatrix(as.factor(prune.pred), as.factor(q_test$class))
+draw_confusion_matrix(cm.rpart.prune)
+```
+
+
+

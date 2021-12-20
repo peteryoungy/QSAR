@@ -4,55 +4,10 @@ author: "Yang Yu"
 date: "2021/12/2"
 output: pdf_document
 ---
-```{r}
-qsar_raw = read.csv2("biodeg.csv",header = FALSE);
-names(qsar_raw) <- c('SpMax_L',
-                     'J_Dz(e)',
-                     'nHM',
-                     'F01[N-N]',
-                     'F04[C-N]',
-                     'NssssC',
-                     'nCb-',
-                     'C%',
-                     'nCp',
-                     'nO',
-                     'F03[C-N]',
-                     'SdssC',
-                     'HyWi_B(m)',
-                     'LOC',
-                     'SM6_L',
-                     'F03[C-O]',
-                     'Me',
-                     'Mi',
-                     'nN-N',
-                     'nArNO2',
-                     'nCRX3',
-                     'SpPosA_B(p)',
-                     'nCIR',
-                     'B01[C-Br]',
-                     'B03[C-Cl]',
-                     'N-073',
-                     'SpMax_A',
-                     'Psi_i_1d',
-                     'B04[C-Br]',
-                     'SdO',
-                     'TI2_L',
-                     'nCrt',
-                     'C-026',
-                     'F02[C-N]',
-                     'nHDon',
-                     'SpMax_B(m)',
-                     'Psi_i_A',
-                     'nN',
-                     'SM6_B(m)',
-                     'nArCOOR',
-                     'nX',
-                     'experimental class');
-qsar_raw
-```
 
+# Read DATA
 ```{r}
-qsar_raw = read.csv2("biodeg.csv",header = FALSE);
+qsar_raw = read.csv2("data/biodeg.csv",header = FALSE);
 names(qsar_raw) <- c('SpMax_L',
                      'J_Dz_e',
                      'nHM',
@@ -129,23 +84,24 @@ qsar_raw
 ```
 
 
-LDA, bayes, decision tree, bagging, random forest
+# Implement the following method: 
+# 1.LDA 2.Naive bayes 3. Decision Tree 4. Bagging 5. RandomForest
 
 
-# LDA
+# 1. LDA
 ```{r}
 # attach(qsar_raw)
-
+library(MASS)
 # create lda model
 lda.fit <- lda(class ~ ., data = qsar_train)
 # lda.fit
 
 
 # predict
-lda.predict <- predict(lda.fit, qsar_test)
+lda.pred <- predict(lda.fit, qsar_test)
 # names(lda.predict)
 # lda.predict
-lda.class <- lda.predict$class
+lda.class <- lda.pred$class
 # lda.class
 
 
@@ -154,11 +110,11 @@ table(lda.class, qsar_test$class)
 mean(lda.class == qsar_test$class)
 
 
-
 ```
 
 
-# naive bayes
+
+# 2. naive bayes
 ```{r}
 library(e1071)
 
@@ -175,22 +131,31 @@ nb.class <- predict(nb.fit, qsar_test)
 table(nb.class, qsar_test$class)
 mean(nb.class == qsar_test$class)
 
+```
+
+```{r}
+cor.qsar <- cor(qsar_raw)
+library(corrplot)
+corrplot(cor.qsar, method="color",tl.col="black", tl.cex = 0.5)
 
 ```
 
 
-#decision tree without pruning
+# 3.1 decision tree without pruning
 ```{r}
 library(tree)
 
 # create model 
 tree.qsar <- tree(as.factor(class) ~.,data = qsar_train)
-# summary(tree.qsar)
+summary(tree.qsar)
 
 
 #plot
 # plot(tree.qsar)
+# # text(tree.qsar, pretty = 0,type = c("proportional", "uniform"))
 # text(tree.qsar, pretty = 0)
+
+# rpart.plot(tree.qsar, box.palette="RdBu", shadow.col="gray", nn=TRUE)
 
 # predict
 tree.pred <- predict(tree.qsar, qsar_test, type = "class") 
@@ -201,14 +166,14 @@ table(tree.pred, qsar_test$class)
 mean(tree.pred == qsar_test$class)
 ```
 
-# decision tree with pruning
+# 3.2 decision tree with pruning
 ```{r}
 
 # add panalty a|T|
 set.seed(3)
 cv.qsar <- cv.tree(tree.qsar,FUN = prune.misclass) 
-# cv.qsar
-# plot(cv.qsar$size, cv.qsar$dev, type = "b", xlab = "Tree Size", ylab = "Deviance")
+cv.qsar
+plot(cv.qsar$size, cv.qsar$dev, type = "b", xlab = "Tree Size", ylab = "Deviance")
 
 
 # size = 15 is the optimal tree
@@ -216,8 +181,8 @@ cv.qsar <- cv.tree(tree.qsar,FUN = prune.misclass)
 
 # get model
 prune.tree.qsar <- prune.misclass(tree.qsar, best = 12)
-# plot(prune.tree.qsar)
-# text(prune.tree.qsar, pretty = 0)
+plot(prune.tree.qsar)
+text(prune.tree.qsar, pretty = 0)
 
 
 # predict
@@ -232,7 +197,7 @@ mean(tree.pred.prun == qsar_test$class)
 ```
 
 
-# bagging
+# 4. bagging
 
 ```{r}
 library(randomForest)
@@ -256,7 +221,8 @@ mean(bag.pred == qsar_test$class)
 
 ```
 
-# randomForest
+
+# 5. randomForest
 
 ```{r}
 # CREATE MODEL
@@ -273,5 +239,125 @@ forest.pred <- predict(forest.qsar, newdata = qsar_test)
 # TEST ERROR
 table(forest.pred, qsar_test$class)
 mean(forest.pred == qsar_test$class)
+```
+
+
+
+
+# Now draw some pics!!!!
+
+
+# DRAW CONFUSION MATRIX: 1. EMPTY TABLE
+```{r}
+library(dplyr)
+library(tidyr)
+library(caret)
+library(ggplot2)
+library(reshape2)
+pred = factor(lda.class)
+levels(pred)
+truth = factor(qsar_test$class)
+levels(truth)
+confusionMatrix(pred, truth)
+input.mat = as.matrix(confusionMatrix(pred, truth))
+normalized.mat = sweep(input.mat, 2, colSums(input.mat), "/" )
+melt.mat <- melt(normalized.mat)
+ggplot(data = melt.mat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() + ggtitle("Confusion Matrix of  linear regression for conventional features") +
+  xlab("Prediction") + ylab("truth") + labs(fill = "frequency")
+```
+
+
+# DRAW CONFUSION MATRIX: 2. fourfoldplot
+```{r}
+library(caret)
+library(ggplot2)
+cm.lda <- confusionMatrix(as.factor(lda.class), as.factor(qsar_test$class))
+fourfoldplot(cm.lda$table, main = "Confusion Matrix of LDA", std="ind.max")
+
+
+# cm.nb <- confusionMatrix(as.factor(nb.class), as.factor(qsar_test$class))
+# fourfoldplot(cm.nb$table, main = "Confusion Matrix of Naive Bayes")
+# 
+# cm.tree <- confusionMatrix(as.factor(tree.pred), as.factor(qsar_test$class))
+# fourfoldplot(cm.tree$table, main = "Confusion Matrix of Decision Tree")
+
+```
+
+
+# DRAW CONFUSION MATRIX: 3. TABLE WITH STATISTICS
+
+```{r}
+draw_confusion_matrix <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#3F97D0')
+  text(195, 435, 'RB', cex=1.2)
+  rect(250, 430, 340, 370, col='#F7AD50')
+  text(295, 435, 'NRB', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#F7AD50')
+  rect(250, 305, 340, 365, col='#3F97D0')
+  text(140, 400, 'RB', cex=1.2, srt=90)
+  text(140, 335, 'NRB', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+} 
+
+```
+
+
+```{r}
+library(caret)
+
+
+cm.lda <- confusionMatrix(as.factor(lda.class), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.lda)
+
+cm.nb <- confusionMatrix(as.factor(nb.class), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.nb)
+
+cm.tree <- confusionMatrix(as.factor(tree.pred), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.tree)
+
+cm.tree.prun <- confusionMatrix(as.factor(tree.pred.prun), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.tree.prun)
+
+cm.bag <- confusionMatrix(as.factor(bag.pred), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.bag)
+
+cm.forest <- confusionMatrix(as.factor(forest.pred), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.forest)
+
 ```
 
