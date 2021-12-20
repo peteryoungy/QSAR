@@ -111,6 +111,7 @@ mean(q.pred, q_test$class)
 # PLOT CONFUSION MATRIX
 
 ```{r}
+library(caret)
 cm.rpart <- confusionMatrix(as.factor(q.pred), as.factor(q_test$class))
 draw_confusion_matrix(cm.rpart)
 ```
