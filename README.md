@@ -11,13 +11,14 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┣ 📂data
  ┃ ┗ 📜biodeg.csv        
  ┣ 📂materials
- ┃ ┣ 📂pics                       # pics
- ┃ ┣ 📜6690_Project.pptx              
+ ┃ ┣ 📂pics                         # pics
+ ┃ ┗ 📜6690_Project.pptx
+ ┣ 📂R code
+ ┣ ┣ 📜tree.Rmd                     # Decision Tree using rpart
+ ┣ ┣ 📜read_data.Rmd                # Our implementation
+ ┃ ┗ 📜6690_proj_algorithm.R        # Reproduce paper method, Adaboost, NN and consensus model 
  ┣ 📜.gitignore
- ┣ 📜6690_proj_algorithm.R        # Reproduce paper method, Adaboost, NN and consensus model
  ┣ 📜QSAR.Rproj
- ┣ 📜tree.Rmd                     # Decision Tree using rpart
- ┣ 📜read_data.Rmd                # Our implementation
  ┗ 📜README.md
 ```
 
