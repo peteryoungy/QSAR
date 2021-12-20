@@ -38,7 +38,7 @@ For our paper: []()
   - selected using many classification modeling methods combined with genetic algorithms
 - **Correlationships**
 
-<img src="./materials/pics/correlations.png" style = "zoom:50%">
+<img src="./materials/pics/correlations.png" style = "zoom:40%">
 
 ### Reproduce
 
