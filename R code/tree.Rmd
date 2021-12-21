@@ -4,6 +4,7 @@ author: "Yang Yu"
 date: "2021/12/20"
 output: pdf_document
 ---
+
 ```{r}
 q = read.csv2("../data/biodeg.csv",header = FALSE);
 names(q) <- c('SpMax_L',
