@@ -12,11 +12,14 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┃ ┗ 📜biodeg.csv        
  ┣ 📂materials
  ┃ ┣ 📂pics                         # pics
- ┃ ┗ 📜6690_Project.pptx
+ ┃ ┗ 📜 presentation_v2.pptx        # slides
+ ┃ ┗ 📜 Final Paper.pdf             # Final Report
  ┣ 📂R code
- ┃ ┣ 📜tree.Rmd                     # Decision Tree using rpart
+ ┃ ┣ 📜tree.Rmd                     # Decision Tree Model using rpart
  ┃ ┣ 📜read_data.Rmd                # Our implementation
- ┃ ┗ 📜6690_proj_algorithm.R        # Reproduce paper method, Adaboost, NN and consensus model 
+ ┃ ┣ 📜plot.Rmd                     # Result visualization
+ ┃ ┗ 📜6690_proj_algorithm.R        # Reproduce paper method, Adaboost, NN and consensus model
+ ┃ ┗ 📜6690_proj_algorithm.Rmd      # Rmd version of 6690_proj_algorithm.R
  ┣ 📜.gitignore
  ┣ 📜QSAR.Rproj
  ┗ 📜README.md
@@ -24,11 +27,11 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
 
 For Data Set: [Data Set](https://archive.ics.uci.edu/ml/datasets/QSAR+biodegradation)
 
-For Presentation: [Presentation Slides](./materials/6690_Project.pptx)
-
 For result pics: [pictures](./materials/pics)
 
-For our paper: []()
+For Presentation slides: [Presentation Slides](./materials/presentation_v2.pptx)
+
+For final report: [paper](./materials/Final Paper.pdf)
 
 ### Data Set Description
 
