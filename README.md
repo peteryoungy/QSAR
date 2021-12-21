@@ -14,7 +14,7 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┃ ┣ 📂pics                         # pics
  ┃ ┗ 📜 presentation_v2.pptx        # slides
  ┃ ┗ 📜 final_paper_v1.pdf          # Final Report
- ┣ 📂R_code
+ ┣ 📂R code
  ┃ ┣ 📜tree.Rmd                     # Decision Tree Model using rpart
  ┃ ┣ 📜read_data.Rmd                # Our implementation
  ┃ ┣ 📜plot.Rmd                     # Result visualization
