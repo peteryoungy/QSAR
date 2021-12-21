@@ -126,6 +126,17 @@ draw_confusion_matrix(cm.dnn)
 ```
 
 
+## 1.5 PLOT C8, C4, C7
+
+```{r}
+draw_confusion_matrix(cm.c8)
+
+draw_confusion_matrix(cm.c4)
+
+draw_confusion_matrix(cm.c7)
+
+```
+
 ------------------------------------------------------------------------------------------
 
 # Ⅱ. OTHER ABANDONED METHOD

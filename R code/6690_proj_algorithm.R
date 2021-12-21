@@ -100,7 +100,7 @@ qsar.svm<-svm(class~., data = qsar_train, kernel = "radial",
               type = "C-classification", cost = svm_cost)
 # Confusion Matrix for 7-fold CV
 qsar.svm.cv<-svm(class~., data = qsar_train, kernel = "radial", 
-                type = "C-classification", cost = svm_cost, cross = 7)
+                 type = "C-classification", cost = svm_cost, cross = 7)
 svm_cv_table<-table(qsar.svm.cv$fitted, qsar_train$class, dnn = c("Prediction", "Truth"))
 # CM for testing
 svm_test_predict<-predict(qsar.svm, qsar_test)
@@ -184,20 +184,20 @@ opt_re_knn_par<-which.max(cv_totoal_correct)
 k_re_kknn<-k_val[opt_re_knn_par%%10]
 dist_re_knn<-dist_val[(opt_re_knn_par-1)%/%10 + 1]
 qsar.re.knn<-kknn(class~C + F01_N_N + F03_C_N + F04_C_N + 
-                 J_Dz_e + nCb + nCp + nHM + nO + 
-                 NssssC + SdssC + SpMax_L, 
-               train = qsar_train, test = qsar_test,
-               k = k_re_kknn, distance = dist_re_knn)
+                    J_Dz_e + nCb + nCp + nHM + nO + 
+                    NssssC + SdssC + SpMax_L, 
+                  train = qsar_train, test = qsar_test,
+                  k = k_re_kknn, distance = dist_re_knn)
 # CM for testing
 re_kknn_test_predict<-round(qsar.re.knn$fitted.values)
 rekknn_test_table<-table(re_kknn_test_predict, qsar_test$class, dnn = c("Prediction", "Truth"))
 
 # CM for training
 qsar.re.knn.train<-kknn(class~C + F01_N_N + F03_C_N + F04_C_N + 
-                    J_Dz_e + nCb + nCp + nHM + nO + 
-                    NssssC + SdssC + SpMax_L, 
-                  train = qsar_train, test = qsar_train,
-                  k = k_re_kknn, distance = dist_re_knn)
+                          J_Dz_e + nCb + nCp + nHM + nO + 
+                          NssssC + SdssC + SpMax_L, 
+                        train = qsar_train, test = qsar_train,
+                        k = k_re_kknn, distance = dist_re_knn)
 re_kknn_train_predict<-round(qsar.re.knn.train$fitted.values)
 rekknn_train_table<-table(re_kknn_train_predict, qsar_train$class, dnn = c("Prediction", "Truth"))
 
@@ -218,8 +218,8 @@ for (epoch in 1:10) {
     for (k in 1:5) {
       cv_test_index<-cv_index[(1+round(167.4*(k-1))):round(167.4*k)]
       qsar.re.plsda.cv<-plsda(train_x_plsda[-cv_test_index,], 
-                           qsar_train[-cv_test_index,]$class, 
-                           ncomp = plsda_n_val[i])
+                              qsar_train[-cv_test_index,]$class, 
+                              ncomp = plsda_n_val[i])
       cv_predict<-predict(qsar.re.plsda.cv, train_x_plsda[cv_test_index,])$class$max.dist[, plsda_n_val[i]]
       num_correct<-sum(cv_predict == qsar_train[cv_test_index, ]$class)
       cv_totoal_correct2[i]<-cv_totoal_correct2[i] + num_correct
@@ -279,8 +279,8 @@ for (epoch in 1:3) {
   for (i in 1:7) {
     for (j in 1:2) {
       qsar.adaboost.cv<-boosting.cv(class~., data = qsar_train_adaboost, 
-                                 boos = bootstrap[j], v = 5, 
-                                 mfinal = trees_adaboost[i])
+                                    boos = bootstrap[j], v = 5, 
+                                    mfinal = trees_adaboost[i])
       adaboost_cv_error[i, j]<-adaboost_cv_error[i, j] + qsar.adaboost.cv$error
     }
   }
@@ -288,8 +288,10 @@ for (epoch in 1:3) {
 opt_adaboost_par<-which.min(adaboost_cv_error)
 # trees = 175, boos = TRUE
 set.seed(6690)
-bootstrap_adaboost<-bootstrap[(opt_adaboost_par - 1)%/%7 + 1]
-numtree_adaboost<-trees_adaboost[opt_adaboost_par%%7 + (7 - opt_adaboost_par%%7)%/%7 ]
+# bootstrap_adaboost<-bootstrap[(opt_adaboost_par - 1)%/%7 + 1]
+# numtree_adaboost<-trees_adaboost[opt_adaboost_par%%7 + (7 - opt_adaboost_par%%7)%/%7 ]
+bootstrap_adaboost<-TRUE
+numtree_adaboost<-175
 qsar.adaboost<-boosting(class~., data = qsar_train_adaboost,
                         boos = bootstrap_adaboost, 
                         mfinal = numtree_adaboost)
@@ -297,7 +299,6 @@ qsar.adaboost<-boosting(class~., data = qsar_train_adaboost,
 # CM for testing
 adaboost_test_predict<-predict(qsar.adaboost, qsar_test)$class
 ada1_test_table<-table(adaboost_test_predict, qsar_test$class, dnn = c("Prediction", "Truth"))
-
 ada1.pred<-adaboost_test_predict
 
 ## 6. Adaboost-Freund
@@ -309,9 +310,9 @@ for (epoch in 1:3) {
   for (i in 1:7) {
     for (j in 1:2) {
       qsar.adaboost.cv2<-boosting.cv(class~., data = qsar_train_adaboost, 
-                                    boos = bootstrap2[j], v = 5, 
-                                    mfinal = trees_adaboost2[i],
-                                    coeflearn = "Freund")
+                                     boos = bootstrap2[j], v = 5, 
+                                     mfinal = trees_adaboost2[i],
+                                     coeflearn = "Freund")
       adaboost_cv_error2[i, j]<-adaboost_cv_error2[i, j] + qsar.adaboost.cv2$error
     }
   }
@@ -324,14 +325,13 @@ set.seed(100)
 bootstrap_adaboost2<-FALSE
 numtree_adaboost2<-50
 qsar.adaboost2<-boosting(class~., data = qsar_train_adaboost,
-                        boos = bootstrap_adaboost2, 
-                        mfinal = numtree_adaboost2,
-                        coeflearn = "Freund")
+                         boos = bootstrap_adaboost2, 
+                         mfinal = numtree_adaboost2,
+                         coeflearn = "Freund")
 
 # CM for testing
 adaboost_test_predict2<-predict(qsar.adaboost2, qsar_test)$class
 ada2_test_table<-table(adaboost_test_predict2, qsar_test$class, dnn = c("Prediction", "Truth"))
-ada2_test_table
 ada2.pred<-adaboost_test_predict2
 
 ## 7. Neural Network
@@ -359,7 +359,7 @@ for (epoch in 1:6) {
       qsar.nn.cv %>% compile(loss = "categorical_crossentropy", 
                              optimizer = "adam", metrics = "accuracy")
       history.cv<-qsar.nn.cv %>% fit(qsar_train_x, qsar_train_y, epochs = 60,
-                         batch_size = 100, verbose = 0, validation_split = 0.2)
+                                     batch_size = 100, verbose = 0, validation_split = 0.2)
       cv.test<-history.cv$metrics$val_accuracy[60]
       cv_totoal_acc[i]<-cv_totoal_acc[i] + cv.test
     }
@@ -403,9 +403,9 @@ for (epoch in 1:6) {
         layer_dropout(0.4) %>%
         layer_dense(units = 2, activation = "softmax")
       qsar.dnn.cv %>% compile(loss = "categorical_crossentropy", 
-                          optimizer = "adam", metrics = "accuracy")
+                              optimizer = "adam", metrics = "accuracy")
       history.cv<-qsar.dnn.cv %>% fit(qsar_train_x, qsar_train_y, epochs = 60,
-                          batch_size = 100, verbose = 0, validation_split = 0.2)
+                                      batch_size = 100, verbose = 0, validation_split = 0.2)
       cv.test<-history.cv$metrics$val_accuracy[60]
       cv_totoal_acc2[i]<-cv_totoal_acc2[i] + cv.test
     }
@@ -426,9 +426,9 @@ qsar.dnn %>%
   layer_dropout(0.4) %>%
   layer_dense(units = 2, activation = "softmax")
 qsar.dnn %>% compile(loss = "categorical_crossentropy", 
-                    optimizer = "adam", metrics = "accuracy")
+                     optimizer = "adam", metrics = "accuracy")
 dnn.train.history<-qsar.dnn %>% fit(qsar_train_x, qsar_train_y, epochs = 60,
-                              batch_size = 100, validation_split = 0.05)
+                                    batch_size = 100, validation_split = 0.05)
 plot(dnn.train.history)
 test_acc_dnn<-qsar.dnn %>% evaluate(qsar_test_x, qsar_test_y, verbose = 0)
 test_acc_dnn[2]
@@ -479,6 +479,7 @@ mean(nb.class == qsar_test$class)
 naive.pred<-nb.class
 
 # 11. Consensus
+library(caret)
 all_pred<-data.frame(svm.pred, resvm.pred, rekknn.pred, replsda.pred,
                      ada1.pred, ada2.pred, nn.pred, dnn.pred, naive.pred,
                      rf.pred, bag.pred)
@@ -495,31 +496,37 @@ cm.dnn<-confusionMatrix(dnn_test_table)
 consensus1<-as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$replsda.pred) + as.numeric(all_pred$resvm.pred) - 1
 consensus1<-as.numeric(consensus1 > 1)
 cm.c1<-confusionMatrix(table(consensus1, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c1
 
 # C2
 consensus2<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$svm.pred) - 1
 consensus2<-as.numeric(consensus2 > 1)
 cm.c2<-confusionMatrix(table(consensus2, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c2
 
 # C3
 consensus3<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$dnn.pred)
 consensus3<-as.numeric(consensus3 > 1)
 cm.c3<-confusionMatrix(table(consensus3, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c3
 
 # C4
 consensus4<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada1.pred)
 consensus4<-as.numeric(consensus4 > 1)
 cm.c4<-confusionMatrix(table(consensus4, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c4
 
 # C5
 consensus5<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$rf.pred) - 1
 consensus5<-as.numeric(consensus5 > 1)
 cm.c5<-confusionMatrix(table(consensus5, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c5
 
 # C6
 consensus6<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$bag.pred) - 1
 consensus6<-as.numeric(consensus6 > 1)
 cm.c6<-confusionMatrix(table(consensus6, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c6
 
 # C7
 consensus7<-as.numeric(all_pred$nn.pred) + as.numeric(all_pred$rekknn.pred) + as.numeric(all_pred$ada2.pred)
@@ -535,51 +542,58 @@ cm.c8<-confusionMatrix(table(consensus8, qsar_test$class, dnn = c("Prediction", 
 cm.c8
 
 
+# C?
+consensus<-consensus4 + consensus7 + consensus8
+consensus<-as.numeric(consensus > 1)
+cm.c<-confusionMatrix(table(consensus, qsar_test$class, dnn = c("Prediction", "Truth")))
+cm.c
+
+
 # 12. Plot Confusion Matrix
 draw_confusion_matrix <- function(cm) {
   
   layout(matrix(c(1,1,2)))
   par(mar=c(2,2,2,2))
-  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  plot(c(130, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
   title('CONFUSION MATRIX', cex.main=2)
   
   # create the matrix 
-  rect(150, 430, 240, 370, col='#3F97D0')
-  text(195, 435, 'RB', cex=1.2)
-  rect(250, 430, 340, 370, col='#F7AD50')
-  text(295, 435, 'NRB', cex=1.2)
-  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
-  text(245, 450, 'Actual', cex=1.3, font=2)
-  rect(150, 305, 240, 365, col='#F7AD50')
-  rect(250, 305, 340, 365, col='#3F97D0')
-  text(140, 400, 'RB', cex=1.2, srt=90)
-  text(140, 335, 'NRB', cex=1.2, srt=90)
+  rect(155, 425, 240, 370, col='#3F97D0')
+  text(195, 435, 'RB', cex=2)
+  rect(255, 425, 340, 370, col='#F7AD50')
+  text(295, 435, 'NRB', cex=2)
+  text(125, 370, 'Predicted', cex=1.8, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.8, font=2)
+  rect(155, 300, 240, 365, col='#F7AD50')
+  rect(255, 300, 340, 365, col='#3F97D0')
+  text(140, 400, 'RB', cex=2, srt=90)
+  text(140, 335, 'NRB', cex=2, srt=90)
   
   # add in the cm results 
   res <- as.numeric(cm$table)
-  text(195, 400, res[1], cex=1.6, font=2, col='white')
-  text(195, 335, res[2], cex=1.6, font=2, col='white')
-  text(295, 400, res[3], cex=1.6, font=2, col='white')
-  text(295, 335, res[4], cex=1.6, font=2, col='white')
+  text(195, 400, res[1], cex=2.5, font=2, col='white')
+  text(195, 335, res[2], cex=2.5, font=2, col='white')
+  text(295, 400, res[3], cex=2.5, font=2, col='white')
+  text(295, 335, res[4], cex=2.5, font=2, col='white')
   
   # add in the specifics 
   plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
-  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
-  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
-  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
-  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
-  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
-  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
-  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
-  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
-  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
-  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+  text(10, 85, names(cm$byClass[1]), cex=2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=2)
+  text(30, 85, names(cm$byClass[2]), cex=2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=2)
+  text(50, 85, names(cm$byClass[5]), cex=2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=2)
+  text(70, 85, names(cm$byClass[6]), cex=2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=2)
+  text(90, 85, names(cm$byClass[7]), cex=2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=2)
   
   # add in the accuracy information 
-  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
-  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
-  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
-  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+  text(30, 35, names(cm$overall[1]), cex=2, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=2)
+  text(70, 35, names(cm$overall[2]), cex=2, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=2)
 } 
 draw_confusion_matrix(cm.ada1)
 draw_confusion_matrix(cm.ada2)
@@ -623,7 +637,7 @@ for (epoch in 1:6) {
     for (k in 1:5) {
       cv_test_index<-cv_index[(1+round(167.4*(k-1))):round(167.4*k)]
       qsar.rf.cv<-randomForest(as.factor(class) ~.,data = qsar_train[-cv_test_index, ], 
-                                ntree = num_trees_rf[i], importance = TRUE)
+                               ntree = num_trees_rf[i], importance = TRUE)
       rf.cv.pred <- predict(qsar.rf.cv, newdata = qsar_train[cv_test_index, ])
       cv.acc<-mean(rf.cv.pred == qsar_train[cv_test_index, ]$class)
       rf_cv_acc[i]<-rf_cv_acc[i] + cv.acc
@@ -632,7 +646,7 @@ for (epoch in 1:6) {
 }
 num_tree_rf = num_trees_rf[which.max(rf_cv_acc)]
 qsar.rf <- randomForest(as.factor(class) ~.,data = qsar_train, 
-                             ntree = num_tree_rf, importance = TRUE)
+                        ntree = num_tree_rf, importance = TRUE)
 rf.pred <- predict(qsar.rf, newdata = qsar_test)
 cm.rf<-confusionMatrix(table(rf.pred, qsar_test$class, dnn = c("Prediction", "Truth")))
 mean(rf.pred == qsar_test$class)
