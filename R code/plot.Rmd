@@ -1,0 +1,177 @@
+---
+title: "cm_plot"
+author: "Yang Yu"
+date: "2021/12/21"
+output: pdf_document
+---
+
+# Ⅰ. DEF FUNCTION: DRAW CONFUSION MATRIX
+
+```{r}
+draw_confusion_matrix <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2),mai=c(0.1,0.3,0.3,0.3))
+  plot(c(139, 345), c(300, 452), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#3F97D0')
+  text(195, 437, 'RB', cex=1.2)
+  rect(250, 430, 340, 370, col='#F7AD50')
+  text(295, 437, 'NRB', cex=1.2)
+  
+  text(138, 370, 'Predicted', cex=1.4, srt=90, font=2)
+  text(245, 448, 'Actual', cex=1.4, font=2)
+  
+  rect(150, 305, 240, 365, col='#F7AD50')
+  rect(250, 305, 340, 365, col='#3F97D0')
+  text(145, 400, 'RB', cex=1.2, srt=90)
+  text(145, 335, 'NRB', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n', cex.main = 1.5)
+  
+  text(10, 85, names(cm$byClass[1]), cex=1.3, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.3)
+  text(30, 85, names(cm$byClass[2]), cex=1.3, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.3)
+  text(50, 85, names(cm$byClass[5]), cex=1.3, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.3)
+  text(70, 85, names(cm$byClass[6]), cex=1.3, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.3)
+  text(90, 85, names(cm$byClass[7]), cex=1.3, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.3)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.3, font=2, col = "red")
+  text(30, 17, round(as.numeric(cm$overall[1]), 3), cex=1.3, col = "red", font=2)
+  text(70, 35, names(cm$overall[2]), cex=1.3, font=2)
+  text(70, 17, round(as.numeric(cm$overall[2]), 3), cex=1.3, font=2)
+} 
+
+```
+
+
+## 1.1 PLOT LDA, NB, TREE, TRE_PRUNE
+
+```{r}
+library(caret)
+
+
+cm.lda <- confusionMatrix(as.factor(lda.class), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.lda)
+
+cm.nb <- confusionMatrix(as.factor(nb.class), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.nb)
+
+cm.tree <- confusionMatrix(as.factor(tree.pred), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.tree)
+
+cm.tree.prun <- confusionMatrix(as.factor(tree.pred.prun), as.factor(qsar_test$class))
+draw_confusion_matrix(cm.tree.prun)
+
+# cm.bag <- confusionMatrix(as.factor(bag.pred), as.factor(qsar_test$class))
+# draw_confusion_matrix(cm.bag)
+# 
+# cm.forest <- confusionMatrix(as.factor(forest.pred), as.factor(qsar_test$class))
+# draw_confusion_matrix(cm.forest)
+
+```
+
+
+## 1.2 PLOT BAGGING RANDOMFOREST(FROM CV)
+
+```{r}
+draw_confusion_matrix(cm.bag)
+
+draw_confusion_matrix(cm.rf)
+```
+
+
+## 1.3 PLOT REPRODUCE
+
+```{r}
+
+draw_confusion_matrix(cm.reknn)
+
+draw_confusion_matrix(cm.replsda)
+
+draw_confusion_matrix(cm.resvm)
+
+draw_confusion_matrix(cm.svm)
+
+
+```
+ 
+## 1.4 PLOT ADABOOST NN DNN
+
+```{r}
+
+draw_confusion_matrix(cm.ada1)
+
+draw_confusion_matrix(cm.ada2)
+
+draw_confusion_matrix(cm.nn)
+
+draw_confusion_matrix(cm.dnn)
+
+```
+
+
+------------------------------------------------------------------------------------------
+
+# Ⅱ. OTHER ABANDONED METHOD
+
+## 1. EMPTY TABLE
+```{r}
+library(dplyr)
+library(tidyr)
+library(caret)
+library(ggplot2)
+library(reshape2)
+pred = factor(lda.class)
+levels(pred)
+truth = factor(qsar_test$class)
+levels(truth)
+confusionMatrix(pred, truth)
+input.mat = as.matrix(confusionMatrix(pred, truth))
+normalized.mat = sweep(input.mat, 2, colSums(input.mat), "/" )
+melt.mat <- melt(normalized.mat)
+ggplot(data = melt.mat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() + ggtitle("Confusion Matrix of  linear regression for conventional features") +
+  xlab("Prediction") + ylab("truth") + labs(fill = "frequency")
+```
+
+
+## 2. fourfoldplot
+```{r}
+library(caret)
+library(ggplot2)
+cm.lda <- confusionMatrix(as.factor(lda.class), as.factor(qsar_test$class))
+fourfoldplot(cm.lda$table, main = "Confusion Matrix of LDA", std="ind.max")
+
+
+# cm.nb <- confusionMatrix(as.factor(nb.class), as.factor(qsar_test$class))
+# fourfoldplot(cm.nb$table, main = "Confusion Matrix of Naive Bayes")
+# 
+# cm.tree <- confusionMatrix(as.factor(tree.pred), as.factor(qsar_test$class))
+# fourfoldplot(cm.tree$table, main = "Confusion Matrix of Decision Tree")
+
+```
+
+
+# CORRELATIONSHIP
+```{r}
+cor.qsar <- cor(qsar_raw)
+library(corrplot)
+corrplot(cor.qsar, method="color",tl.col="black", tl.cex = 0.5)
+
+```
