@@ -479,6 +479,7 @@ mean(nb.class == qsar_test$class)
 naive.pred<-nb.class
 
 # 11. Consensus
+library(caret)
 all_pred<-data.frame(svm.pred, resvm.pred, rekknn.pred, replsda.pred,
                      ada1.pred, ada2.pred, nn.pred, dnn.pred, naive.pred,
                      rf.pred, bag.pred)
