@@ -13,6 +13,7 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┣ 📂materials
  ┃ ┣ 📂pics                         # pics
  ┃ ┗ 📜 presentation_v2.pptx        # slides
+ ┃ ┗ 📜 presentation_v2.pdf         # slides 
  ┃ ┗ 📜 final_paper_v1.pdf          # Final Report
  ┣ 📂R code
  ┃ ┣ 📜tree.Rmd                     # Decision Tree Model using rpart
@@ -29,7 +30,7 @@ For Data Set: [Data Set](https://archive.ics.uci.edu/ml/datasets/QSAR+biodegrada
 
 For result pics: [pictures](./materials/pics)
 
-For Presentation slides: [Presentation Slides](./materials/presentation_v2.pptx)
+For Presentation slides: [pptx](./materials/presentation_v2.pptx)    [pdf](./materials/presentation_v2.pdf)
 
 For final report: [paper](./materials/final_paper_v1.pdf)
 
@@ -62,6 +63,8 @@ For final report: [paper](./materials/final_paper_v1.pdf)
 - Concensus Model
 
 ### Conclusion
+
+
 
 ### Citation
 
