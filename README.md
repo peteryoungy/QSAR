@@ -13,7 +13,7 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┣ 📂materials
  ┃ ┣ 📂pics                         # pics
  ┃ ┗ 📜 presentation_v2.pptx        # slides
- ┃ ┗ 📜 presentation_v2.pdf         # slides 
+ ┃ ┗ 📜 presentation_v2.pdf         # slides pdf
  ┃ ┗ 📜 final_paper_v1.pdf          # Final Report
  ┣ 📂R code
  ┃ ┣ 📜tree.Rmd                     # Decision Tree Model using rpart
@@ -26,13 +26,13 @@ QSAR (Quantitative Structure-Activity Relationships) is used to predict the biod
  ┗ 📜README.md
 ```
 
-For Data Set: [Data Set](https://archive.ics.uci.edu/ml/datasets/QSAR+biodegradation)
+Presentation slides: [pptx](./materials/presentation_v2.pptx)    [pdf](./materials/presentation_v2.pdf)
 
-For result pics: [pictures](./materials/pics)
+Final report: [paper](./materials/final_paper_v1.pdf)
 
-For Presentation slides: [pptx](./materials/presentation_v2.pptx)    [pdf](./materials/presentation_v2.pdf)
+Data Set: [Data Set](https://archive.ics.uci.edu/ml/datasets/QSAR+biodegradation)
 
-For final report: [paper](./materials/final_paper_v1.pdf)
+Result pics: [pictures](./materials/pics)
 
 ### Data Set Description
 
@@ -60,11 +60,17 @@ For final report: [paper](./materials/final_paper_v1.pdf)
 - RandomForest
 - Adaboost
 - Neural Network
-- Concensus Model
+- Consensus Model
 
 ### Conclusion
 
+#### Ⅰ Individual model
 
+<img src="./materials/pics/individual_model.png" width=70% height=70%>
+
+#### Ⅱ Consensus Model
+
+<img src="./materials/pics/consensus_model.png" >
 
 ### Citation
 
